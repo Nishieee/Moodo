@@ -4,29 +4,16 @@ import "./App.css";
 const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setError("");  // Clear previous errors
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Login failed');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.access_token);
       await onLogin(email, password);
-    } catch (error) {
-      setError(error.message);
+      console.log("Login successful");
+    } catch (err) {
+      setError(err.message); // Display error message
     }
   };
 
@@ -35,30 +22,21 @@ const LoginPage = ({ onLogin }) => {
       <h1 className="auth-title">Login</h1>
       {error && <p className="auth-error">{error}</p>}
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            className="auth-input"
-          />
-        </div>
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            className="auth-input"
-          />
-        </div>
-        <button
-          type="submit"
-          className="auth-button"
-        >
-          Login
-        </button>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          required
+        />
+        <button type="submit">Login</button>
       </form>
     </div>
   );
@@ -72,91 +50,104 @@ const SignupPage = ({ onSignup }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, username, password })
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Signup failed');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.access_token);
       await onSignup(email, username, password);
-    } catch (error) {
-      setError(error.message);
+      console.log("Signup successful");
+    } catch (err) {
+      setError(err.message); // Display error message as a string
     }
   };
 
   return (
-    <div style={{
-      maxWidth: "400px",
-      margin: "40px auto",
-      padding: "20px",
-      backgroundColor: "rgba(45, 45, 45, 0.9)",
-      borderRadius: "10px",
-      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-    }}>
-      <h1 style={{ color: "#fff", marginBottom: "20px" }}>Sign Up</h1>
-      {error && <p style={{ color: "#ff6b6b", marginBottom: "10px" }}>{error}</p>}
+    <div className="auth-container">
+      <h1 className="auth-title">Sign Up</h1>
+      {error && <p className="auth-error">{error}</p>}
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            className="auth-input"
-          />
-        </div>
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            className="auth-input"
-          />
-        </div>
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "5px",
-              border: "1px solid #ddd",
-              backgroundColor: "#fff"
-            }}
-          />
-        </div>
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            padding: "10px",
-            backgroundColor: "#ff6b6b",
-            color: "#fff",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer"
-          }}
-        >
-          Sign Up
-        </button>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+        />
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          required
+        />
+        <button type="submit">Sign Up</button>
       </form>
     </div>
   );
 };
+
+const handleLogin = async (email, password) => {
+  if (!email || !password) {
+    throw new Error("Email and password are required");
+  }
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.detail || "Login failed");
+    }
+
+    const data = await response.json();
+    localStorage.setItem("token", data.access_token);
+    console.log("Login successful!");
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
+};
+
+const handleSignup = async (email, username, password) => {
+  if (!email || !username || !password) {
+    throw new Error("All fields are required");
+  }
+  if (password.length < 6) {
+    throw new Error("Password must be at least 6 characters long");
+  }
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, username, password }), // Correct structure
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Signup failed");
+    }
+
+    const data = await response.json();
+    console.log("Signup successful!", data);
+  } catch (error) {
+    console.error("Signup error:", error);
+    throw error;
+  }
+};
+
+
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -166,7 +157,7 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState("mood");
   const [selectedPrompt, setSelectedPrompt] = useState("");
   const [journalEntry, setJournalEntry] = useState("");
-  
+
   const journalPrompts = [
     "How was your day today?",
     "When did you feel the happiest this week?",
@@ -201,77 +192,6 @@ const App = () => {
       setIsAuthenticated(true);
     }
   }, []);
-  };
-
-    <div className="auth-container">
-      <h1 className="auth-title">Sign Up</h1>
-      {error && <p className="auth-error">{error}</p>}
-            className="auth-input"
-          />
-        </div>
-      </form>
-    </div>
-  );
-};
-
-const handleLogin = async (email, password) => {
-    if (!email || !password) {
-      throw new Error("Email and password are required");
-    }
-    try {
-      const response = await fetch('http://127.0.0.1:8000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Login failed');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.access_token);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
-  };
-
-  const handleSignup = async (email, username, password) => {
-    if (!email || !username || !password) {
-      throw new Error("All fields are required");
-    }
-    
-    if (password.length < 6) {
-      throw new Error("Password must be at least 6 characters long");
-    }
-    try {
-      const response = await fetch('http://127.0.0.1:8000/api/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, username, password })
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Signup failed');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.access_token);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Signup error:', error);
-      throw error;
-    }
-  };
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -338,22 +258,22 @@ const handleLogin = async (email, password) => {
 
   const MoodPage = () => (
     <>
-      <h1 style={{ 
+      <h1 style={{
         color: "#fff",
         fontSize: "2.5rem",
         marginBottom: "20px",
         fontWeight: "600"
       }}>Rate Your Mood</h1>
-      <p style={{ 
+      <p style={{
         color: "#e0e0e0",
         fontSize: "1.2rem",
         marginBottom: "30px"
       }}>How are you feeling today?</p>
 
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "center", 
-        gap: "20px", 
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: "20px",
         margin: "40px 0",
         flexWrap: "wrap"
       }}>
@@ -375,7 +295,6 @@ const handleLogin = async (email, password) => {
               alignItems: "center",
               justifyContent: "center",
               border: "3px solid transparent",
-              position: "relative",
               transform: selectedMood.includes(emoji) ? "scale(1.1)" : "scale(1)"
             }}
             onMouseOver={(e) => {
@@ -397,19 +316,17 @@ const handleLogin = async (email, password) => {
       </div>
 
       {(selectedMood || aiResponse) && (
-        <div style={{ 
+        <div style={{
           marginTop: "40px",
           padding: "30px",
           background: "linear-gradient(135deg, #2d2d2d 0%, #353535 100%)",
           borderRadius: "15px",
           boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)",
-          transform: "translateY(0)",
-          animation: "fadeIn 0.5s ease-out",
           border: "1px solid rgba(255, 255, 255, 0.1)"
         }}>
           {selectedMood && (
-            <p style={{ 
-              fontSize: "1.4rem", 
+            <p style={{
+              fontSize: "1.4rem",
               color: "#fff",
               marginBottom: "20px",
               fontWeight: "500"
@@ -418,7 +335,7 @@ const handleLogin = async (email, password) => {
             </p>
           )}
           {aiResponse && (
-            <div style={{ 
+            <div style={{
               padding: "20px",
               backgroundColor: "rgba(80, 80, 80, 0.8)",
               borderRadius: "12px",
@@ -426,7 +343,7 @@ const handleLogin = async (email, password) => {
               border: "2px solid #ff6b6b",
               boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)"
             }}>
-              <p style={{ 
+              <p style={{
                 color: "#fff",
                 fontSize: "1.2rem",
                 lineHeight: "1.6",
@@ -441,15 +358,17 @@ const handleLogin = async (email, password) => {
     </>
   );
 
+
+
   const JournalPage = () => (
     <>
-      <h1 style={{ 
+      <h1 style={{
         color: "#fff",
         fontSize: "2.5rem",
         marginBottom: "20px",
         fontWeight: "600"
       }}>Journal Your Thoughts</h1>
-      
+
       <div style={{
         marginTop: "30px",
         marginBottom: "30px"
@@ -531,13 +450,13 @@ const handleLogin = async (email, password) => {
 
   const EntriesPage = () => (
     <>
-      <h1 style={{ 
+      <h1 style={{
         color: "#fff",
         fontSize: "2.5rem",
         marginBottom: "20px",
         fontWeight: "600"
       }}>Past Entries</h1>
-      
+
       <div style={{
         display: "flex",
         flexDirection: "column",
@@ -562,9 +481,9 @@ const handleLogin = async (email, password) => {
               <span style={{ color: "#ff6b6b", fontSize: "0.9rem" }}>{entry.date}</span>
               <span style={{ fontSize: "1.5rem" }}>{entry.mood}</span>
             </div>
-            <p style={{ 
-              color: "#e0e0e0", 
-              fontSize: "1.1rem", 
+            <p style={{
+              color: "#e0e0e0",
+              fontSize: "1.1rem",
               fontStyle: "italic",
               marginBottom: "10px"
             }}>
@@ -580,9 +499,9 @@ const handleLogin = async (email, password) => {
   );
 
   return (
-    <div style={{ 
+    <div style={{
       minHeight: "100vh",
-      textAlign: "center", 
+      textAlign: "center",
       padding: "40px 20px",
       background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
@@ -604,7 +523,7 @@ const handleLogin = async (email, password) => {
             </button>
           </div>
           {showLogin ? (
-            <LoginPage onLogin={handleLogin} />
+            <LoginPage onLogin={() => setIsAuthenticated(true)} />
           ) : (
             <SignupPage onSignup={handleSignup} />
           )}
@@ -651,8 +570,8 @@ const handleLogin = async (email, password) => {
                   cursor: "pointer",
                   transition: "all 0.3s ease",
                   transform: currentPage === page ? "translateY(0)" : "translateY(5px)",
-                  boxShadow: currentPage === page 
-                    ? "0 4px 15px rgba(255, 107, 107, 0.3)" 
+                  boxShadow: currentPage === page
+                    ? "0 4px 15px rgba(255, 107, 107, 0.3)"
                     : "0 4px 15px rgba(0, 0, 0, 0.2)",
                 }}
                 onMouseOver={(e) => {
@@ -692,5 +611,7 @@ const handleLogin = async (email, password) => {
     </div>
   );
 };
+
+
 
 export default App;
